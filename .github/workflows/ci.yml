@@ -39,3 +39,33 @@ jobs:
   
       - name: Analizar calidad de codigo
         run: ruff check --output-format=github .
+
+
+
+  build:
+    needs: [pruebas, calidad]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar herramienta de build
+        run: python -m pip install build
+
+      - name: Construir paquete
+        run: python -m build
+
+      - name: Guardar artefactos
+        uses: actions/upload-artifact@v4
+        with:
+          name: paquete-python
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
