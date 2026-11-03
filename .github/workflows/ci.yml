@@ -115,4 +115,13 @@ jobs:
 
       - name: Auditar dependencias
         run: python -m pip_audit -r requirements-ci.txt
+        
+      - name: Detectar vulnerabilidad de prueba
+        run: |
+          python -m pip_audit \
+            --no-deps \
+            --disable-pip \
+            -r requirements-vulnerable-demo.txt
+
+          
 
