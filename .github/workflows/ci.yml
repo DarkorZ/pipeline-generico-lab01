@@ -69,3 +69,28 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+
+  verificar_paquete:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Descargar artefacto
+        uses: actions/download-artifact@v4
+        with:
+          name: paquete-python
+          path: dist/
+
+      - name: Instalar paquete
+        run: python -m pip install dist/*.whl
+
+      - name: Comprobar instalacion
+        run: |
+          cd "$RUNNER_TEMP"
+          python -c "from app import sumar; assert sumar(2, 3) == 5; print('Paquete instalado correctamente')"
+
