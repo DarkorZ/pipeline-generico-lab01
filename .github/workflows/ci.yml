@@ -43,7 +43,7 @@ jobs:
 
 
   build:
-    needs: [pruebas, calidad]
+    needs: [pruebas, calidad, seguridad]
     runs-on: ubuntu-latest
 
     steps:
