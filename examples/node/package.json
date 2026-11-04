@@ -1,0 +1,10 @@
+
+{
+  "name": "lab08-node",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "lint": "node --check app.js && node --check test/sumar.test.js"
+  }
+}
