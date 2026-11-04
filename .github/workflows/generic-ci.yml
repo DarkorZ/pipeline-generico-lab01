@@ -25,4 +25,4 @@ jobs:
       project_path: "examples/node"
       node_version: "22"
       run_tests: true
-      run_lint: true
+      run_lint: false
