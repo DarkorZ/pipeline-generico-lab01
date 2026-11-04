@@ -115,6 +115,91 @@ jobs:
 
       - name: Auditar dependencias
         run: python -m pip_audit -r requirements-ci.txt
+
+        
+  despliegue_pages:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [pruebas, calidad, seguridad, build, verificar_paquete]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Descargar paquete verificado
+        uses: actions/download-artifact@v4
+        with:
+          name: paquete-python
+          path: dist/
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generar sitio estatico
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from html import escape
+          import hashlib
+          import os
+          import shutil
+
+          output = Path("site")
+          output.mkdir(exist_ok=True)
+
+          wheel = next(Path("dist").glob("*.whl"))
+          shutil.copy2(wheel, output / wheel.name)
+
+          digest = hashlib.sha256(wheel.read_bytes()).hexdigest()
+          commit = os.environ["GITHUB_SHA"][:7]
+
+          html = f"""<!doctype html>
+          <html lang="es">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Pipeline generico CI/CD</title>
+          </head>
+          <body>
+            <h1>Pipeline generico - Entrega de prueba</h1>
+            <p>Paquete construido y verificado por GitHub Actions.</p>
+            <p>Commit: <code>{commit}</code></p>
+            <p>Archivo: <code>{escape(wheel.name)}</code></p>
+            <p>SHA256: <code>{digest}</code></p>
+            <p><a href="{escape(wheel.name)}">Descargar paquete Python</a></p>
+          </body>
+          </html>"""
+
+          (output / "index.html").write_text(html, encoding="utf-8")
+          (output / "health.json").write_text(
+              '{"status": "ok"}\n', encoding="utf-8"
+          )
+          PY
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar artefacto Pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/
+
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
         
 
 
