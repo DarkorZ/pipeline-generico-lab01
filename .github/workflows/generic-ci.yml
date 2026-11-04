@@ -18,3 +18,11 @@ jobs:
       python_version: "3.12"
       run_tests: true
       run_lint: true
+  validar_node:
+    uses: ./.github/workflows/reusable-ci.yml
+    with:
+      language: node
+      project_path: "examples/node"
+      node_version: "22"
+      run_tests: true
+      run_lint: true
