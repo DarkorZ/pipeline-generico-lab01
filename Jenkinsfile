@@ -28,7 +28,7 @@ pipeline {
 
         stage('Preparar entorno') {
             steps {
-                sh 'uv venv --python 3.12 .venv'
+                sh 'uv venv --clear --python 3.12 .venv'
                 sh 'uv pip install --python .venv/bin/python -r requirements-ci.txt'
             }
         }
