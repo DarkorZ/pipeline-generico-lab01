@@ -6,7 +6,11 @@ pipeline {
         timestamps()
         skipDefaultCheckout()
     }
-
+    
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+    
     parameters {
         booleanParam(
             name: 'FORZAR_FALLO',
